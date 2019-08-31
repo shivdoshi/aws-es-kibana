@@ -2,6 +2,7 @@
 
 var AWS = require('aws-sdk');
 var http = require('http');
+var https = require('https');
 var httpProxy = require('http-proxy');
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -9,6 +10,7 @@ var stream = require('stream');
 var figlet = require('figlet');
 var basicAuth = require('express-basic-auth');
 var compress = require('compression');
+var tls = require('tls');
 const fs = require('fs');
 const homedir = require('os').homedir();
 
@@ -65,6 +67,24 @@ var yargs = require('yargs')
       default: process.env.LIMIT || '10000kb',
       demand: false,
       describe: 'request limit'
+    })
+    .option('cert', {
+      alias: 'cert',
+      default: process.env.CERT_PATH || '',
+      demand: false,
+      describe: 'Server certificate path'
+    })
+    .option('key', {
+      alias: 'key',
+      default: process.env.KEY_PATH || '',
+      demand: false,
+      describe: 'Server key path'
+    })
+    .option('https', {
+      alias: 'https',
+      default: process.env.SECURE || 'false',
+      demand: false,
+      describe: 'Server key path'
     })
     .help()
     .version()
@@ -192,7 +212,16 @@ proxy.on('proxyRes', function (proxyReq, req, res) {
     }
 });
 
-http.createServer(app).listen(PORT, BIND_ADDRESS);
+
+if (!argv.https) {
+    https.createServer(app).listen(PORT, BIND_ADDRESS);
+}
+else {
+    https.createServer({
+      key: fs.readFileSync(argv.key),
+      cert: fs.readFileSync(argv.cert)
+    },app).listen(PORT, BIND_ADDRESS);
+}
 
 if(!argv.s) {
     console.log(figlet.textSync('AWS ES Proxy!', {

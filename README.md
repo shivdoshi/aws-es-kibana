@@ -49,6 +49,12 @@ Run the container (do not forget to pass the required environment variables)
 
 	docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -p 127.0.0.1:9200:9200 aws-es-kibana -b 0.0.0.0 <cluster-endpoint>
 
+## Running server on HTTPS
+
+To run the server on HTTPS, you need to pass the argument to run it in HTTPS mode along with the certificate and key. Please refer [here](https://nodejs.org/docs/v0.4.1/api/tls.html#tLS_) to get self-signed certificates.
+
+
+    sudo aws-es-kibana https://<cluster-endpoint> --port 443 --https true --key /Users/sdoshi/ryans-key.pem --cert /Users/sdoshi/ryans-cert.pem
 
 ## Credits
 
